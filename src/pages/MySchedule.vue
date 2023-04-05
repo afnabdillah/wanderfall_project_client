@@ -22,7 +22,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useMainStore, ['mySchedules']),
+    ...mapState(useMainStore, ['mySchedules', 'editScheduleErrMessage', 'deleteScheduleErrMessage']),
 
     maxVisitDate() {
       return new Date().toISOString().split('T')[0];
@@ -30,7 +30,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(useMainStore, ['fetchMySchedules', 'handleEditSchedule']),
+    ...mapActions(useMainStore, ['fetchMySchedules', 'handleEditSchedule', 'handleDeleteSchedule']),
 
     longDateFormatter(scheduleDate) {
       let options = {
@@ -59,6 +59,24 @@ export default {
       }
     },
 
+    toastFirer(icon, title) {
+      const toast = this.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      })
+      toast.fire({
+        icon: icon,
+        title: title
+      })
+    },
+
     async editThisSchedule(scheduleId) {
       const input = {
         plan: this.plan,
@@ -69,8 +87,31 @@ export default {
       }
       const result = await this.handleEditSchedule(scheduleId, input);
       if (result) {
-        this.showEditSchedule[index] = false;
+        this.showEditSchedule.forEach(el => false);
+        this.toastFirer('success', 'Your Schedule Has been Successfully Updated')
+      } else {
+        this.toastFirer('error', this.editScheduleErrMessage);
       }
+    },
+
+    async deleteSchedule(scheduleId) {
+      this.$swal({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const result = await this.handleDeleteSchedule(scheduleId);
+          if (result) {
+            this.toastFirer('success', 'Your Schedule Has been Deleted');
+          } else {
+            this.toastFirer('error', this.deleteScheduleErrMessage);
+          }
+        }
+      })
     }
   },
 
@@ -122,6 +163,10 @@ export default {
             <button @click="showEditForm(index, mySchedule.id)" href="#"
               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mr-4">
               Edit this plan
+            </button>
+            <button @click="deleteSchedule(mySchedule.id)" href="#"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mr-4">
+              Delete this plan
             </button>
             <a v-if="mySchedule.isSyncWithGoogleCalendar" :href="mySchedule.link" target="_blank"
               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mr-4">

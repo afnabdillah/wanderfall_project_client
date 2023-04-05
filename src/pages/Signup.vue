@@ -1,5 +1,5 @@
 <script>
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { useMainStore } from '../stores/mainStore';
 
 export default {
@@ -11,15 +11,42 @@ export default {
     }
   },
 
+  computed : {
+    ...mapState(useMainStore, ['signUpErrMessage'])
+  },
+
   methods: {
     ...mapActions(useMainStore, ['handleSignUp']),
 
+    toastFirer(icon, title) {
+      const toast = this.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      })
+      toast.fire({
+        icon: icon,
+        title: title
+      })
+    },
+
     async signup() {
-      await this.handleSignUp({
+      const result = await this.handleSignUp({
         username: this.username,
         email: this.email,
         password: this.password
       });
+      if (result) {
+        this.toastFirer('success', 'Signed Up Successfully!');
+      } else {
+        this.toastFirer('error', this.signUpErrMessage);
+      }
     }
   }
 }

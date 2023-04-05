@@ -32,7 +32,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useMainStore, ['destinationDetails', 'imageUrls']),
+    ...mapState(useMainStore, ['destinationDetails', 'imageUrls', 'addScheduleErrMessage', 'addReviewErrMessage']),
 
     computeRating() {
       const ratings = this.destinationDetails?.Reviews.map(el => el.rating);
@@ -114,6 +114,24 @@ export default {
       }
     },
 
+    toastFirer(icon, title) {
+      const toast = this.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', this.$swal.stopTimer)
+          toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+        }
+      })
+      toast.fire({
+        icon: icon,
+        title: title
+      })
+    },
+
     async submitReview() {
       const input = {
         review: this.review,
@@ -123,10 +141,13 @@ export default {
       const result = await this.handleSubmitReview(input, this.params);
       if (result) {
         this.showAddReview = false;
+        this.toastFirer('success', 'Your review has been added!');
+      } else {
+        this.toastFirer('error', this.addReviewErrMessage);
       }
     },
 
-    addToSchedule() {
+    async addToSchedule() {
       const input = {
         plan: this.plan,
         scheduleDate: this.scheduleDate,
@@ -134,7 +155,12 @@ export default {
         scheduleEnd: this.scheduleEnd,
         isSyncWithGoogleCalendar: this.isSyncWithGoogleCalendar
       }
-      this.handleAddToSchedule(input, this.params);
+      const result = await this.handleAddToSchedule(input, this.params);
+      if (result) {
+        this.toastFirer('success', 'Your Schedule Has Been Successfully added!');
+      } else {
+        this.toastFirer('error', this.addScheduleErrMessage);
+      }
     },
 
   },

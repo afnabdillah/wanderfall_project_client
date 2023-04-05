@@ -1,5 +1,5 @@
 <script>
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { useMainStore } from '../stores/mainStore';
 import GoogleLogin from '../components/GoogleLogin.vue';
 
@@ -12,7 +12,11 @@ export default {
     }
   },
 
-  components : {
+  computed: {
+    ...mapState(useMainStore, ['loginErrMessage'])
+  },
+
+  components: {
     GoogleLogin
   },
 
@@ -20,19 +24,43 @@ export default {
 
     ...mapActions(useMainStore, ['handleLogin']),
 
+    toastFirer(icon, title) {
+      const toast = this.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', this.$swal.stopTimer)
+          toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+        }
+      })
+      toast.fire({
+        icon: icon,
+        title: title
+      })
+    },
+
     async login() {
       const inputLogin = {
         email: this.email,
         password: this.password
       }
-      await this.handleLogin(inputLogin);
+      const result = await this.handleLogin(inputLogin);
+      if (result) {
+        this.toastFirer('success', 'Logged In Successfully!');
+      } else {
+        this.toastFirer('error', this.loginErrMessage);
+      }
     }
   }
 }
 </script>
 
 <template>
-  <div class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-login.jpg')] bg-cover relative">
+  <div
+    class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-login.jpg')] bg-cover relative">
     <router-link to="/" class="absolute w-10 aspect-square top-5 left-5">
       <font-awesome-icon class="absolute-middle" icon="fa-solid fa-arrow-left" size="xl" />
     </router-link>
@@ -51,7 +79,8 @@ export default {
         </div>
         <div class="my-3.5 text-sm text-center">
           <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Don't have an account yet? Sign up
-            <router-link to="/signup" class="hover:underline text-sky-200 hover:text-sky-300 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"
+            <router-link to="/signup"
+              class="hover:underline text-sky-200 hover:text-sky-300 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"
               href="#">here</router-link>
           </p>
         </div>

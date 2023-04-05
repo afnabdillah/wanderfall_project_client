@@ -6,6 +6,14 @@ const base_url = 'http://localhost:3000';
 export const useMainStore = defineStore('mainStore', {
   state: () => ({
     loginStatus: localStorage.access_token ? true : false,
+    loginErrMessage : '',
+    signUpErrMessage : '',
+    addScheduleErrMessage : '',
+    editScheduleErrMessage : '',
+    deleteScheduleErrMessage : '',
+    addReviewErrMessage : '',
+    editReviewErrMessage : '',
+    deleteReviewErrMessage : '',
     destinations: [],
     destinationDetails: null,
     mySchedules: [],
@@ -28,8 +36,7 @@ export const useMainStore = defineStore('mainStore', {
         this.router.push('/');
         return true;
       } catch (err) {
-        console.trace(err);
-        console.log(err.response.data);
+        this.loginErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -42,7 +49,7 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleSignUp(input) {
       try {
-        const { data } = await axios({
+        await axios({
           method: 'POST',
           url: `${base_url}/signup`,
           data: input
@@ -51,9 +58,10 @@ export const useMainStore = defineStore('mainStore', {
           email: input.email,
           password: input.password
         });
+        return true;
       } catch (err) {
-        console.trace(err);
-        console.log(err.response.data);
+        this.signUpErrMessage = err.response.data.message;
+        return false;
       }
     },
 
@@ -111,7 +119,7 @@ export const useMainStore = defineStore('mainStore', {
         await this.fetchDestinationDetails(params);
         return true;
       } catch (err) {
-        console.log(err.response.data);
+        this.addReviewErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -129,8 +137,7 @@ export const useMainStore = defineStore('mainStore', {
         this.router.push('/myschedule');
         return true;
       } catch (err) {
-        console.trace(err);
-        console.log(err.response.data);
+        this.addScheduleErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -164,8 +171,7 @@ export const useMainStore = defineStore('mainStore', {
         this.fetchMySchedules();
         return true;
       } catch (err) {
-        console.log(err.response.data);
-        console.trace(err);
+        this.editScheduleErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -184,8 +190,7 @@ export const useMainStore = defineStore('mainStore', {
         this.fetchDestinationDetails(destinationId);
         return true;
       } catch (err) {
-        console.log(err.response.data);
-        console.trace(err);
+        this.editReviewErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -202,8 +207,7 @@ export const useMainStore = defineStore('mainStore', {
         this.fetchDestinationDetails(destinationId);
         return true;
       } catch (err) {
-        console.log(err.response.data);
-        console.trace(err);
+        this.deleteReviewErrMessage = err.response.data.message;
         return false;
       }
     },
@@ -225,6 +229,23 @@ export const useMainStore = defineStore('mainStore', {
         console.trace(err);
       }
 
+    },
+
+    async handleDeleteSchedule(scheduleId) {
+      try {
+        const {data} = await axios({
+          method : 'DELETE',
+          url : `${base_url}/schedules/${scheduleId}`,
+          headers : {
+            access_token : localStorage.access_token
+          }
+        })
+        this.fetchMySchedules();
+        return true;
+      } catch(err) {
+        this.deleteScheduleErrMessage = err.response.data.message;
+        return false;
+      }
     },
 
     getImageUrls(images, googleImages) {
