@@ -1,6 +1,7 @@
 <script>
 import { mapActions } from 'pinia';
 import { useMainStore } from '../stores/mainStore';
+import GoogleLogin from '../components/GoogleLogin.vue';
 
 export default {
 
@@ -9,6 +10,10 @@ export default {
       email: '',
       password: ''
     }
+  },
+
+  components : {
+    GoogleLogin
   },
 
   methods: {
@@ -25,7 +30,6 @@ export default {
   }
 }
 </script>
-
 
 <template>
   <div class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-login.jpg')] bg-cover">
@@ -50,6 +54,10 @@ export default {
         </div>
         <button class=" my-2.5 w-full bg-green-500 hover:bg-green-600 py-2 rounded-full" type="submit">Log In</button>
       </form>
+      <p class="text-center text-sm my-3">Or log in with google</p>
+      <div class="text-center">
+        <GoogleLogin />
+      </div>
     </div>
   </div>
 </template>
