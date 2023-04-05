@@ -26,16 +26,18 @@ export const useMainStore = defineStore('mainStore', {
         localStorage.username = username;
         this.loginStatus = true;
         this.router.push('/');
+        return true;
       } catch (err) {
         console.trace(err);
         console.log(err.response.data);
+        return false;
       }
     },
 
     handleLogout() {
       localStorage.clear();
       this.loginStatus = false;
-      this.router.push('/destinations');
+      this.router.push('/');
     },
 
     async handleSignUp(input) {
@@ -98,7 +100,7 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleSubmitReview(input, params) {
       try {
-        const { data } = await axios({
+        await axios({
           method: 'POST',
           url: `${base_url}/destinations/${params}/reviews`,
           headers: {
@@ -106,7 +108,6 @@ export const useMainStore = defineStore('mainStore', {
           },
           data: input
         })
-        console.log(data);
         await this.fetchDestinationDetails(params);
         return true;
       } catch (err) {
@@ -117,7 +118,7 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleAddToSchedule(input, params) {
       try {
-        const { data } = await axios({
+        await axios({
           method: 'POST',
           url: `${base_url}/destinations/${params}/schedule`,
           headers: {
@@ -125,10 +126,12 @@ export const useMainStore = defineStore('mainStore', {
           },
           data: input
         })
-        console.log(data);
+        this.router.push('/myschedule');
+        return true;
       } catch (err) {
         console.trace(err);
         console.log(err.response.data);
+        return false;
       }
     },
 
@@ -150,7 +153,7 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleEditSchedule(scheduleId, input) {
       try {
-        const { data } = await axios({
+        await axios({
           method: 'PUT',
           url: `${base_url}/schedules/${scheduleId}`,
           headers: {
@@ -159,7 +162,6 @@ export const useMainStore = defineStore('mainStore', {
           data: input
         });
         this.fetchMySchedules();
-        console.log(data);
         return true;
       } catch (err) {
         console.log(err.response.data);
@@ -178,8 +180,7 @@ export const useMainStore = defineStore('mainStore', {
           },
           data: input
         }
-        const { data } = await axios(config);
-        console.log(data);
+        await axios(config);
         this.fetchDestinationDetails(destinationId);
         return true;
       } catch (err) {
@@ -191,30 +192,34 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleDeleteReview(reviewId, destinationId) {
       try {
-        const { data } = await axios({
+        await axios({
           method: 'DELETE',
           url: `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
           headers: {
             access_token: localStorage.access_token
           }
         })
-        console.log(data);
-        this.fetchDestinationDetails(destinationId)
+        this.fetchDestinationDetails(destinationId);
+        return true;
       } catch (err) {
         console.log(err.response.data);
         console.trace(err);
+        return false;
       }
     },
 
     async handleGoogleSignIn(response) {
       try {
-        console.log(response);
         const credential = response.credential;
         const { data } = await axios({
           method: 'POST',
           url: `${base_url}/google-sign-in`,
           headers: { credential }
         })
+        await this.handleLogin({
+          email: data.email,
+          password: 'google'
+        });
       } catch (err) {
         console.log(err.response.data);
         console.trace(err);
