@@ -8,9 +8,9 @@ export const useMainStore = defineStore('mainStore', {
     loginStatus: localStorage.access_token ? true : false,
     destinations: [],
     destinationDetails: null,
-    mySchedules : [],
-    imageUrls : [],
-    tags : [],
+    mySchedules: [],
+    imageUrls: [],
+    tags: [],
   }),
 
   actions: {
@@ -57,12 +57,12 @@ export const useMainStore = defineStore('mainStore', {
 
     async fetchTags() {
       try {
-        const {data} = await axios({
-          method : 'GET',
-          url : `${base_url}/destinations/tags`
+        const { data } = await axios({
+          method: 'GET',
+          url: `${base_url}/destinations/tags`
         });
         this.tags = data;
-      } catch(err) {
+      } catch (err) {
         console.trace(err);
         console.log(err.response.data);
       }
@@ -73,7 +73,7 @@ export const useMainStore = defineStore('mainStore', {
         const { data } = await axios({
           method: 'GET',
           url: `${base_url}/destinations`,
-          params : query
+          params: query
         })
         this.destinations = data;
       } catch (err) {
@@ -98,18 +98,18 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleSubmitReview(input, params) {
       try {
-        const {data} = await axios({
-          method : 'POST',
-          url : `${base_url}/destinations/${params}/reviews`,
-          headers : {
-            access_token : localStorage.access_token
+        const { data } = await axios({
+          method: 'POST',
+          url: `${base_url}/destinations/${params}/reviews`,
+          headers: {
+            access_token: localStorage.access_token
           },
-          data : input
+          data: input
         })
         console.log(data);
         await this.fetchDestinationDetails(params);
         return true;
-      } catch(err) {
+      } catch (err) {
         console.log(err.response.data);
         return false;
       }
@@ -117,16 +117,16 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleAddToSchedule(input, params) {
       try {
-        const {data} = await axios({
-          method : 'POST',
-          url : `${base_url}/destinations/${params}/schedule`,
-          headers : {
-            access_token : localStorage.access_token
+        const { data } = await axios({
+          method: 'POST',
+          url: `${base_url}/destinations/${params}/schedule`,
+          headers: {
+            access_token: localStorage.access_token
           },
-          data : input
+          data: input
         })
         console.log(data);
-      } catch(err) {
+      } catch (err) {
         console.trace(err);
         console.log(err.response.data);
       }
@@ -134,15 +134,15 @@ export const useMainStore = defineStore('mainStore', {
 
     async fetchMySchedules() {
       try {
-        const {data} = await axios({
-          method : 'GET',
-          url : `${base_url}/schedules`,
-          headers : {
-            access_token : localStorage.access_token
+        const { data } = await axios({
+          method: 'GET',
+          url: `${base_url}/schedules`,
+          headers: {
+            access_token: localStorage.access_token
           }
         })
         this.mySchedules = data;
-      } catch(err) {
+      } catch (err) {
         console.log(err.response.data);
         console.trace(err);
       }
@@ -150,18 +150,18 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleEditSchedule(scheduleId, input) {
       try {
-        const {data} = await axios({
-          method : 'PUT',
-          url : `${base_url}/schedules/${scheduleId}`,
-          headers : {
-            access_token : localStorage.access_token
+        const { data } = await axios({
+          method: 'PUT',
+          url: `${base_url}/schedules/${scheduleId}`,
+          headers: {
+            access_token: localStorage.access_token
           },
-          data : input
+          data: input
         });
         this.fetchMySchedules();
         console.log(data);
         return true;
-      } catch(err) {
+      } catch (err) {
         console.log(err.response.data);
         console.trace(err);
         return false;
@@ -170,19 +170,19 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleEditReview(reviewId, input, destinationId) {
       try {
-        const config ={
-          method : 'PUT',
-          url : `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
-          headers : {
-            access_token : localStorage.access_token
+        const config = {
+          method: 'PUT',
+          url: `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
+          headers: {
+            access_token: localStorage.access_token
           },
-          data : input
+          data: input
         }
-        const {data} = await axios(config);
+        const { data } = await axios(config);
         console.log(data);
         this.fetchDestinationDetails(destinationId);
         return true;
-      } catch(err) {
+      } catch (err) {
         console.log(err.response.data);
         console.trace(err);
         return false;
@@ -191,19 +191,35 @@ export const useMainStore = defineStore('mainStore', {
 
     async handleDeleteReview(reviewId, destinationId) {
       try {
-        const {data} = await axios({
-          method : 'DELETE',
-          url : `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
-          headers : {
-            access_token : localStorage.access_token
+        const { data } = await axios({
+          method: 'DELETE',
+          url: `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
+          headers: {
+            access_token: localStorage.access_token
           }
         })
         console.log(data);
         this.fetchDestinationDetails(destinationId)
-      } catch(err) {
+      } catch (err) {
         console.log(err.response.data);
         console.trace(err);
       }
+    },
+
+    async handleGoogleSignIn(response) {
+      try {
+        console.log(response);
+        const credential = response.credential;
+        const { data } = await axios({
+          method: 'POST',
+          url: `${base_url}/google-sign-in`,
+          headers: { credential }
+        })
+      } catch (err) {
+        console.log(err.response.data);
+        console.trace(err);
+      }
+
     },
 
     getImageUrls(images, googleImages) {

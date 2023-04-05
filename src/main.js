@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLocationDot, faMoneyBill, faClock, faStar, faComments, faAngleLeft, faAngleRight, faPlus } from '@fortawesome/free-solid-svg-icons'
 import App from './App.vue'
 import router from './routers'
+import vue3GoogleLogin from 'vue3-google-login'
 
 library.add(faLocationDot, faMoneyBill, faClock, faStar, faComments, faAngleLeft, faAngleRight, faPlus)
 
@@ -14,6 +15,10 @@ const pinia = createPinia()
 
 pinia.use(({store}) => {
   store.router = markRaw(router)
+})
+
+app.use(vue3GoogleLogin, {
+  clientId : import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 })
 
 app.use(pinia)
