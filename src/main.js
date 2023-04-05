@@ -7,6 +7,8 @@ import { faLocationDot, faMoneyBill, faClock, faStar, faComments, faAngleLeft, f
 import App from './App.vue'
 import router from './routers'
 import vue3GoogleLogin from 'vue3-google-login'
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 library.add(faLocationDot, faMoneyBill, faClock, faStar, faComments, faAngleLeft, faAngleRight, faPlus, faArrowLeft)
 
@@ -21,6 +23,7 @@ app.use(vue3GoogleLogin, {
   clientId : import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 })
 
+app.use(VueSweetalert2)
 app.use(pinia)
 app.use(router)
 app

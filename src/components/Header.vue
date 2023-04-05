@@ -4,7 +4,7 @@ import { useMainStore } from '../stores/mainStore';
 
 export default {
 
-  computed : {
+  computed: {
     ...mapState(useMainStore, ['loginStatus'])
   },
 
@@ -12,7 +12,33 @@ export default {
     ...mapActions(useMainStore, ['handleLogout']),
 
     logout() {
-      this.handleLogout();
+      this.$swal({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.handleLogout();
+          const toast = this.$swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', this.$swal.stopTimer)
+              toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+            }
+          })
+          toast.fire({
+            icon: 'success',
+            title: 'You have been logged out'
+          })
+        }
+      })
     },
 
     goToHome() {

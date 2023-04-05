@@ -1,5 +1,5 @@
 <script>
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { useMainStore } from '../stores/mainStore';
 
 export default {
@@ -15,6 +15,9 @@ export default {
   props: ['review'],
 
   computed: {
+
+    ...mapState(useMainStore, ['editReviewErrMessage', 'deleteReviewErrMessage']),
+
     longDateFormatter() {
       let options = {
         year: "numeric",
@@ -50,19 +53,56 @@ export default {
       }
     },
 
+    toastFirer(icon, title) {
+      const toast = this.$swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', this.$swal.stopTimer)
+          toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+        }
+      })
+      toast.fire({
+        icon: icon,
+        title: title
+      })
+    },
+
     async submitEditReview() {
       const input = {
         review: this.reviewContent,
         visitDate: this.numDate
       }
-      const result = this.handleEditReview(this.review.id, input, this.params);
+      const result = await this.handleEditReview(this.review.id, input, this.params);
       if (result) {
         this.showEditForm = false;
+        this.toastFirer('success', 'Your review has been updated!');
+      } else {
+        this.toastFirer('error', this.editReviewErrMessage);
       }
     },
 
-    deleteReview() {
-      this.handleDeleteReview(this.review.id, this.params);
+    async deleteReview() {
+      this.$swal({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then(async (response) => {
+        if (response.isConfirmed) {
+          const result = await this.handleDeleteReview(this.review.id, this.params);
+          if (result) {
+            this.toastFirer('success', 'Your review has been deleted');
+          } else {
+            this.toastFirer('error', this.deleteReviewErrMessage);
+          }
+        }
+      })
     }
   }
 }
@@ -106,10 +146,10 @@ export default {
                 class=" rounded-full px-4 py-1 bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold">
                 Cancel
               </button>
-              <button v-if="!showEditForm" @click="deleteReview"
+              <div v-if="!showEditForm" @click="deleteReview"
                 class=" rounded-full px-4 py-1 bg-red-500 hover:bg-red-600 hover:cursor-pointer text-white font-semibold">
                 Delete
-              </button>
+              </div>
             </div>
           </div>
         </form>
