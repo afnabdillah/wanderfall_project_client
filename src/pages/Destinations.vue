@@ -9,10 +9,10 @@ export default {
   data() {
     return {
       query: {
-        tag: '',
-        search: '',
-        size: 5,
-        page: 1,
+        tag: this.$route.query.tag ?? '',
+        search: this.$route.query.search ?? '',
+        size: this.$route.query.size ?? 5,
+        page: this.$route.query.page ?? 1,
       },
       currentPage : 1
     }
@@ -33,12 +33,6 @@ export default {
     }
   },
 
-  watch: {
-    query(query) {
-      console.log(query, '<<< ini query dari watcher');
-    }
-  },
-
   methods: {
     ...mapActions(useMainStore, ['fetchDestinations', 'fetchTags']),
 
@@ -51,7 +45,7 @@ export default {
   },
 
   created() {
-    this.fetchDestinations();
+    this.fetchDestinations(this.query);
     this.fetchTags();
   }
 }

@@ -8,6 +8,7 @@ import { useMainStore } from '../stores/mainStore';
 export default {
   data() {
     return {
+      loginStatus: localStorage.access_token ? true : false,
       showGoogleMaps: false,
       currentImage: '',
       showAddReview: false,
@@ -164,7 +165,9 @@ export default {
         <div>
           <h2 class="text-left text-2xl font-bold mb-4 underline underline-offset-8">Tags</h2>
           <ul class="grid grid-flow-col grid-rows-4 gap-1 list-disc">
-            <li v-for="tag in destinationDetails?.Tags"><a href="">{{ tag?.name }}</a></li>
+            <li v-for="tag in destinationDetails?.Tags">
+              <router-link :to="`/destinations/?tag=${tag?.name}`">{{ tag?.name }}</router-link>
+            </li>
           </ul>
         </div>
       </div>
@@ -193,11 +196,15 @@ export default {
           <p class="ml-2">{{ destinationDetails?.Reviews.length }} reviews</p>
         </div>
         <div class="flex col-start-6">
-          <div @click.prevent="toggleAddSchedule()"
+          <button v-if="loginStatus" @click.prevent="toggleAddSchedule()"
             class="rounded-full bg-green-400 hover:bg-green-500 w-full h-full pl-4 pr-2 py-2 text-white flex justify-center items-center hover:cursor-pointer">
             <font-awesome-icon class="mr-2" icon="fa-solid fa-plus" size="lg" />
             <p class=" text-sm font-bold">Add To Schedule</p>
-          </div>
+          </button>
+          <router-link to="/login" v-else-if="!loginStatus"
+            class="rounded-full bg-slate-500 hover:bg-slate-600 w-full h-full pl-4 pr-2 py-2 text-white flex justify-center items-center hover:cursor-pointer">
+            <p class=" text-sm font-bold">Log In First to Add</p>
+          </router-link>
         </div>
       </div>
 
@@ -239,7 +246,7 @@ export default {
     <h2 class=" text-2xl font-bold mb-4 underline underline-offset-8">Photo Collection</h2>
     <div class="bg-slate-200 w-full h-[40rem] mb-8 ease-in-out forwards duration-300">
       <div class="pt-8 px-8 pb-4 h-3/4">
-        <div  class="h-full w-full relative bg-slate-600">
+        <div class="h-full w-full relative bg-slate-600">
           <img :src="currentImage" class=" object-cover h-full w-full">
           <div
             class="absolute left-0 top-0 w-1/12 h-full hover:bg-gradient-to-r hover:w-[12.5%] hover:from-slate-200 transition-all ">
@@ -282,14 +289,9 @@ export default {
     <div class="" v-if="showAddReview">
       <form @submit.prevent="submitReview">
         <p class="mb-2">How was your journey?</p>
-        <textarea 
-          v-model="review" 
-          class="border-2 border-slate-600 border-solid p-2 mb-2 w-2/3 h-24"
-          placeholder="write your experience here..."
-          maxlength="250"
-          minlength="10"
-        >
-        </textarea>
+        <textarea v-model="review" class="border-2 border-slate-600 border-solid p-2 mb-2 w-2/3 h-24"
+          placeholder="write your experience here..." maxlength="250" minlength="10">
+            </textarea>
         <p class="mb-2">When did you visit this place?</p>
         <input v-model="visitDate" class="border-2 border-slate-600 border-solid px-2 mb-2" type="date"
           :max="maxVisitDate">
@@ -310,6 +312,9 @@ export default {
       </form>
     </div>
     <div class="" v-else-if="!showAddReview">
+      <div class=" h-32 flex items-center" v-if="destinationDetails.Reviews.length === 0">
+        <p class="text-left text-xl">There aren't any review yet! Be the first person to review this place!</p>
+      </div>
       <ReviewCard v-for="review in destinationDetails?.Reviews" :key="review.id" :review="review" />
     </div>
   </main>
