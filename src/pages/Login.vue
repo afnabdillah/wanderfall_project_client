@@ -32,7 +32,10 @@ export default {
 </script>
 
 <template>
-  <div class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-login.jpg')] bg-cover">
+  <div class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-login.jpg')] bg-cover relative">
+    <router-link to="/" class="absolute w-10 aspect-square top-5 left-5">
+      <font-awesome-icon class="absolute-middle" icon="fa-solid fa-arrow-left" size="xl" />
+    </router-link>
     <div class="w-1/3 h-2/3  rounded-2xl backdrop-blur-[2px] border-white border-4 py-6 px-8 shadow-2xl">
       <div class="text-center text-2xl font-bold mb-6 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
         Log In

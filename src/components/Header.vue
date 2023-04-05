@@ -24,14 +24,14 @@ export default {
 
 
 <template>
-  <div class="text-white sticky top-0 w-full h-12 bg-green-400 px-10 z-50 flex justify-between items-center">
-    <div class="h-10">
+  <div class="text-white sticky top-0 w-full h-12 bg-green-400 px-10 z-50 grid grid-cols-5 items-center">
+    <div class="h-10 col-span-1">
       <img src="../assets/wanderfall_logo.png" @click="goToHome" class="hover:cursor-pointer h-full">
     </div>
-    <div class="text-center text-xl text-white">
+    <div class="text-center text-xl text-white col-span-3">
       <p>Plan your wonderful trip here!</p>
     </div>
-    <div class="flex">
+    <div class="flex col-span-1">
       <div class="mx-2">
         <router-link to="/destinations" class="header-link" href="">Destinations</router-link>
       </div>
@@ -42,7 +42,7 @@ export default {
         <router-link to="/signup" class="header-link" href="">Sign Up</router-link>
       </div>
       <div v-if="loginStatus" class="mx-2 ">
-        <router-link to="/myschedule" class="header-link" href="">My Schedules</router-link>
+        <router-link to="/myschedule" class="header-link" href="">Schedules</router-link>
       </div>
       <div v-if="loginStatus" class="mx-2 ">
         <a @click.prevent="logout" class="header-link" href="">Logout</a>
