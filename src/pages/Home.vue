@@ -61,7 +61,7 @@ export default {
     <!-- background image container -->
     <div
       class=" h-[32rem] w-full relative before:absolute before:top-0 before:left-0 before:right-0 before:bottom-0 before:bg-[url('./assets/bg-home.jpg')] before:bg-cover before:bg-center before:brightness-50 flex items-center justify-center text-white">
-      <div class="w-1/2 mx-auto text-center z-50">
+      <div class="w-1/2 mx-auto text-center">
         <h1 class="text-[3.5rem] font-semibold my-4 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Wander Fall</h1>
         <p class="text-xl drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] mb-2">
           Are you having trouble to create your holiday plan? Say no more! Wander Fall will help you create the perfect

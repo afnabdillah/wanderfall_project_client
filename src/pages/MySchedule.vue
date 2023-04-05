@@ -8,12 +8,12 @@ export default {
 
   data() {
     return {
-      showEditSchedule : [],
-      plan : '',
-      scheduleDate : '',
-      scheduleTime : '',
-      scheduleEnd : '',
-      isSyncWithGoogleCalendar : null,
+      showEditSchedule: [],
+      plan: '',
+      scheduleDate: '',
+      scheduleTime: '',
+      scheduleEnd: '',
+      isSyncWithGoogleCalendar: null,
     }
   },
 
@@ -61,11 +61,11 @@ export default {
 
     async editThisSchedule(scheduleId) {
       const input = {
-        plan : this.plan,
-        scheduleDate : this.scheduleDate,
-        scheduleTime : this.scheduleTime.slice(0,5),
-        scheduleEnd : this.scheduleEnd.slice(0,5),
-        isSyncWithGoogleCalendar : this.isSyncWithGoogleCalendar,
+        plan: this.plan,
+        scheduleDate: this.scheduleDate,
+        scheduleTime: this.scheduleTime.slice(0, 5),
+        scheduleEnd: this.scheduleEnd.slice(0, 5),
+        isSyncWithGoogleCalendar: this.isSyncWithGoogleCalendar,
       }
       const result = await this.handleEditSchedule(scheduleId, input);
       if (result) {
@@ -86,11 +86,15 @@ export default {
 <template>
   <Header />
   <!-- Timeline design -->
-  <main class="w-4/5 mx-auto mt-8 min-h-screen ">
-    <div class="text-center text-4xl font-bold">
+  <main class=" w-4/6 mx-auto mt-8 min-h-screen ">
+    <div class="text-center text-4xl font-bold mb-8">
       <h1>My Schedules</h1>
     </div>
     <!-- list schedules -->
+    <div v-if="mySchedules.length === 0">
+      <p class="text-center text-2xl">You don't have any schedules yet! Let's create a plan by going to <router-link
+          to="/destinations" class=" underline">destinations</router-link> first!</p>
+    </div>
     <ol class="relative border-l border-gray-200 dark:border-gray-700">
       <li v-for="(mySchedule, index) in mySchedules" class="mb-10 ml-6">
         <!-- Schedule Container -->
@@ -139,7 +143,8 @@ export default {
             <input v-model="scheduleTime" class="mb-2 px-2 border-2 border-solid border-black" type="time">
             <p class="mb-2">End Time :</p>
             <input v-model="scheduleEnd" class="mb-2 px-2 border-2 border-solid border-black" type="time">
-            <p class="mb-2">Do you want to sync it with Google Calendar? <span class="text-sm">(*You might be asked to sign
+            <p class="mb-2">Do you want to sync it with Google Calendar? <span class="text-sm">(*You might be asked to
+                sign
                 in
                 first)</span></p>
             <div class="mb-2">
@@ -150,8 +155,7 @@ export default {
                 value="false">
               <label class="mr-2" for="">No</label>
             </div>
-            <button 
-              type="submit"
+            <button type="submit"
               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-200 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700 mr-4">
               Submit
             </button>
@@ -159,4 +163,5 @@ export default {
         </div>
       </li>
     </ol>
-</main></template>
+  </main>
+</template>

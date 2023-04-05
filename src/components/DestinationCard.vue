@@ -79,7 +79,7 @@ export default {
     <div class=" w-5/6 pr-6 pl-3 pb-2 pt-4 grid grid-rows-6 grid-flow-col gap-2">
       <div class="flex justify-between">
         <div class="font-bold text-xl ">
-          <p>{{ destination.name }}</p>
+          <router-link :to="`/destinations/${destination.name.toLowerCase().split(' ').join('-')}-${destination.id}`">{{ destination.name }}</router-link>
         </div>
         <div class="flex ml-4">
           <font-awesome-icon class=" text-yellow-300" icon="fa-solid fa-star" size="xl" />
