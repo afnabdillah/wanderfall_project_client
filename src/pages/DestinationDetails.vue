@@ -210,7 +210,7 @@ export default {
 
     </div>
     <!-- Add To Schedule Container -->
-    <div class=" w-full origin-top ease-in-out forwards duration-[600ms]"
+    <div v-if="loginStatus" class=" w-full origin-top ease-in-out forwards duration-[600ms]"
       :class="[showAddSchedule ? 'h-[32rem] scale-y-100' : 'h-0 scale-y-0']">
       <form @submit.prevent="addToSchedule">
         <h2 class="text-2xl font-bold mb-4 underline underline-offset-8">Add to Your Schedule</h2>
