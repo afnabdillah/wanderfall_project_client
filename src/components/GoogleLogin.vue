@@ -5,7 +5,7 @@ import { useMainStore } from '../stores/mainStore';
 export default {
 
   methods: {
-    ...mapActions(useMainStore, ['handleGoogleSignIn'])
+    ...mapActions(useMainStore, ['handleGoogleSignIn']),
   }
 }
 </script>
