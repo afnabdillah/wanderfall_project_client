@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-// const base_url = "http://localhost:3000";
-const base_url = "https://wanderfall.fly.dev";
+const base_url = "http://localhost:8080";
+// const base_url = "https://wanderfall.fly.dev";
 
 export const useMainStore = defineStore("mainStore", {
   state: () => ({
@@ -19,6 +19,7 @@ export const useMainStore = defineStore("mainStore", {
     destinationDetails: null,
     mySchedules: [],
     imageUrls: [],
+    loading: false,
     tags: [],
     // For google calendar needs
     SCOPES: "https://www.googleapis.com/auth/calendar",
@@ -32,6 +33,7 @@ export const useMainStore = defineStore("mainStore", {
   actions: {
     async handleLogin(input) {
       try {
+        this.loading = true;
         const { data } = await axios({
           method: "POST",
           url: `${base_url}/login`,
@@ -41,9 +43,11 @@ export const useMainStore = defineStore("mainStore", {
         localStorage.access_token = access_token;
         localStorage.username = username;
         this.loginStatus = true;
+        this.loading = false;
         this.router.push("/");
         return true;
       } catch (err) {
+        this.loading = false;
         console.log(err.response.data);
         this.loginErrMessage = err.response.data.message;
         return false;
@@ -55,9 +59,6 @@ export const useMainStore = defineStore("mainStore", {
       if (token !== null) {
         google.accounts.oauth2.revoke(token.access_token);
         gapi.client.setToken("");
-        // document.getElementById("content").innerText = "";
-        // document.getElementById("authorize_button").innerText = "Authorize";
-        // document.getElementById("signout_button").style.visibility = "hidden";
       }
       localStorage.clear();
       this.loginStatus = false;
@@ -66,6 +67,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async handleSignUp(input) {
       try {
+        this.loading = true;
         await axios({
           method: "POST",
           url: `${base_url}/signup`,
@@ -75,8 +77,10 @@ export const useMainStore = defineStore("mainStore", {
           email: input.email,
           password: input.password,
         });
+        this.loading = false;
         return true;
       } catch (err) {
+        this.loading = false;
         this.signUpErrMessage = err.response.data.message;
         return false;
       }
@@ -84,12 +88,15 @@ export const useMainStore = defineStore("mainStore", {
 
     async fetchTags() {
       try {
+        this.loading = true;
         const { data } = await axios({
           method: "GET",
           url: `${base_url}/destinations/tags`,
         });
         this.tags = data;
+        this.loading = false;
       } catch (err) {
+        this.loading = false;
         console.trace(err);
         console.log(err.response.data);
       }
@@ -97,13 +104,16 @@ export const useMainStore = defineStore("mainStore", {
 
     async fetchDestinations(query) {
       try {
+        this.loading = true;
         const { data } = await axios({
           method: "GET",
           url: `${base_url}/destinations`,
           params: query,
         });
         this.destinations = data;
+        this.loading = false;
       } catch (err) {
+        this.loading = false;
         console.trace(err);
         console.log(err.response.data);
       }
@@ -111,6 +121,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async fetchDestinationDetails(params) {
       try {
+        this.loading = true;
         const { data } = await axios({
           method: "GET",
           url: `${base_url}/destinations/${params}`,
@@ -120,7 +131,9 @@ export const useMainStore = defineStore("mainStore", {
           this.destinationDetails.Images,
           this.destinationDetails.photoAttributes
         );
+        this.loading = false;
       } catch (err) {
+        this.loading = false;
         console.trace(err);
         console.log(err.response.data);
       }
@@ -128,6 +141,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async handleSubmitReview(input, params) {
       try {
+        this.loading = true;
         await axios({
           method: "POST",
           url: `${base_url}/destinations/${params}/reviews`,
@@ -137,8 +151,10 @@ export const useMainStore = defineStore("mainStore", {
           data: input,
         });
         await this.fetchDestinationDetails(params);
+        this.loading = false;
         return true;
       } catch (err) {
+        this.loading = false;
         this.addReviewErrMessage = err.response.data.message;
         return false;
       }
@@ -147,6 +163,7 @@ export const useMainStore = defineStore("mainStore", {
     handleAddToSchedule(input, params, maps_api_key, cb) {
       this.tokenClient.callback = async () => {
         try {
+          this.loading = true;
           const timeZone = await this.getTimeZone(
             input.latitude,
             input.longitude,
@@ -183,9 +200,11 @@ export const useMainStore = defineStore("mainStore", {
             },
             data: input,
           });
+          this.loading = false;
           this.router.push("/myschedule");
           return cb(null, true);
         } catch (err) {
+          this.loading = false;
           cb(err);
         }
       };
@@ -201,6 +220,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async fetchMySchedules() {
       try {
+        this.loading = true;
         const { data } = await axios({
           method: "GET",
           url: `${base_url}/schedules`,
@@ -209,7 +229,9 @@ export const useMainStore = defineStore("mainStore", {
           },
         });
         this.mySchedules = data;
+        this.loading = false;
       } catch (err) {
+        this.loading = false;
         console.log(err.response.data);
         console.trace(err);
       }
@@ -218,6 +240,7 @@ export const useMainStore = defineStore("mainStore", {
     handleEditSchedule(scheduleId, input, cb) {
       this.tokenClient.callback = async () => {
         try {
+          this.loading = true;
           const event = {
             summary: input.plan,
             location: input.address,
@@ -243,9 +266,11 @@ export const useMainStore = defineStore("mainStore", {
             },
             data: input,
           });
-          this.fetchMySchedules();
+          await this.fetchMySchedules();
+          this.loading = false;
           cb(null, true);
         } catch (err) {
+          this.loading = false;
           cb(err);
         }
       }
@@ -261,6 +286,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async handleEditReview(reviewId, input, destinationId) {
       try {
+        this.loading = true;
         const config = {
           method: "PUT",
           url: `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
@@ -270,9 +296,11 @@ export const useMainStore = defineStore("mainStore", {
           data: input,
         };
         await axios(config);
-        this.fetchDestinationDetails(destinationId);
+        await this.fetchDestinationDetails(destinationId);
+        this.loading = false;
         return true;
       } catch (err) {
+        this.loading = false;
         this.editReviewErrMessage = err.response.data.message;
         return false;
       }
@@ -280,6 +308,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async handleDeleteReview(reviewId, destinationId) {
       try {
+        this.loading = true;
         await axios({
           method: "DELETE",
           url: `${base_url}/destinations/${destinationId}/reviews/${reviewId}`,
@@ -287,9 +316,11 @@ export const useMainStore = defineStore("mainStore", {
             access_token: localStorage.access_token,
           },
         });
-        this.fetchDestinationDetails(destinationId);
+        await this.fetchDestinationDetails(destinationId);
+        this.loading = false;
         return true;
       } catch (err) {
+        this.loading = false;
         this.deleteReviewErrMessage = err.response.data.message;
         return false;
       }
@@ -297,6 +328,7 @@ export const useMainStore = defineStore("mainStore", {
 
     async handleGoogleSignIn(response) {
       try {
+        this.loading = true;
         const credential = response.credential;
         const { data } = await axios({
           method: "POST",
@@ -307,7 +339,9 @@ export const useMainStore = defineStore("mainStore", {
           email: data.email,
           password: "google",
         });
+        this.loading = false;
       } catch (err) {
+        this.loading = false;
         console.log(err.response.data);
         console.trace(err);
       }
@@ -316,6 +350,7 @@ export const useMainStore = defineStore("mainStore", {
     handleDeleteSchedule(scheduleId, eventId, cb) {
       this.tokenClient.callback = async () => {
         try {
+          this.loading = true;
           await gapi.client.calendar.events.delete({
             calendarId: "primary",
             eventId,
@@ -327,9 +362,11 @@ export const useMainStore = defineStore("mainStore", {
               access_token: localStorage.access_token,
             },
           });
-          this.fetchMySchedules();
+          await this.fetchMySchedules();
+          this.loading = false;
           cb(null, true);
         } catch (err) {
+          this.loading = false;
           cb(err);
         }
       }
@@ -368,7 +405,6 @@ export const useMainStore = defineStore("mainStore", {
         .then(() => {
           this.gapiInited = true;
         });
-      this.maybeEnableButtons();
     },
 
     gisLoaded() {
@@ -379,77 +415,6 @@ export const useMainStore = defineStore("mainStore", {
         callback: "", // defined later
       });
       this.gisInited = true;
-      this.maybeEnableButtons();
-    },
-
-    maybeEnableButtons() {
-      if (this.gapiInited && this.gisInited) {
-        document.getElementById("authorize_button").style.visibility =
-          "visible";
-      }
-    },
-
-    handleAuthClick() {
-      this.tokenClient.callback = async (resp) => {
-        if (resp.error !== undefined) {
-          throw resp;
-        }
-        console.log(resp, "<<<< ini tokenClient callback resp");
-      };
-
-      if (gapi.client.getToken() === null) {
-        // Prompt the user to select a Google Account and ask for consent to share their data
-        // when establishing a new session.
-        this.tokenClient.requestAccessToken({ prompt: "consent" });
-      } else {
-        // Skip display of account chooser and consent dialog for an existing session.
-        this.tokenClient.requestAccessToken({ prompt: "" });
-      }
-    },
-
-    handleSignoutClick() {
-      const token = gapi.client.getToken();
-      if (token !== null) {
-        google.accounts.oauth2.revoke(token.access_token);
-        gapi.client.setToken("");
-        // document.getElementById("content").innerText = "";
-        // document.getElementById("authorize_button").innerText = "Authorize";
-        // document.getElementById("signout_button").style.visibility = "hidden";
-      }
-    },
-
-    async listUpcomingEvents() {
-      let response;
-      try {
-        const request = {
-          calendarId: "primary",
-          timeMin: new Date().toISOString(),
-          showDeleted: false,
-          singleEvents: true,
-          maxResults: 10,
-          orderBy: "startTime",
-        };
-        response = await gapi.client.calendar.events.list(request);
-      } catch (err) {
-        document.getElementById("content").innerText = err.message;
-        return;
-      }
-
-      const events = response.result.items;
-      if (!events || events.length == 0) {
-        document.getElementById("content").innerText = "No events found.";
-        return;
-      }
-      // Flatten to string to display
-      const output = events.reduce(
-        (str, event) =>
-          `${str}${event.summary} (${
-            event.start.dateTime || event.start.date
-          })\n`,
-        "Events:\n"
-      );
-      console.log(output, "<<<< ini hasil fetch events");
-      document.getElementById("content").innerText = output;
     },
 
     async getTimeZone(lat, lng, maps_api_key) {

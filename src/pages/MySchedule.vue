@@ -25,6 +25,7 @@ export default {
       "mySchedules",
       "editScheduleErrMessage",
       "deleteScheduleErrMessage",
+      "loading",
     ]),
 
     maxVisitDate() {
@@ -147,128 +148,144 @@ export default {
       <h1>My Schedules</h1>
     </div>
     <!-- list schedules -->
-    <div v-if="mySchedules.length === 0">
-      <p class="text-center text-2xl">
-        You don't have any schedules yet! Let's create a plan by going to
-        <router-link to="/destinations" class="underline"
-          >destinations</router-link
-        >
-        first!
-      </p>
-    </div>
-    <ol class="relative">
+    <div
+      v-if="loading"
+      class="flex justify-center items-center h-[42rem] w-full"
+    >
       <div
-        v-for="(mySchedule, index) in mySchedules"
-        class="border-green-600 pl-6 pb-4 border-dashed"
-        :class="[index !== mySchedules.length - 1 && 'border-l-[3px]']"
+        class="inline-block border-green-400 h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] my-3.5"
+        role="status"
       >
-        <li class="ml-6">
-          <!-- Schedule Container -->
-          <div>
-            <span
-              class="absolute flex items-center justify-center w-6 h-6 bg-green-500 rounded-full -left-3 ring-8 ring-green-500"
-            >
-              <svg
-                aria-hidden="true"
-                class="w-3 h-3 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </span>
-            <h3
-              class="flex items-center mb-1 text-lg font-semibold text-gray-900"
-            >
-              A Trip to {{ mySchedule.Destination.name }}
-            </h3>
-            <time
-              class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
-            >
-              {{ longDateFormatter(mySchedule.scheduleDate) }} ( from
-              {{ timeSlicer(mySchedule.scheduleTime) }} to
-              {{ timeSlicer(mySchedule.scheduleEnd) }} )
-            </time>
-            <p class="mb-4 text-base font-normal text-gray-600 text-justify">
-              {{ mySchedule.plan }}
-            </p>
-            <div class="mb-4">
-              <button
-                @click="showEditForm(index, mySchedule.id)"
-                href="#"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
-              >
-                Edit this plan
-              </button>
-              <button
-                @click="deleteSchedule(mySchedule.id, mySchedule.eventId)"
-                href="#"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
-              >
-                Delete this plan
-              </button>
-              <a
-                v-if="mySchedule.isSyncWithGoogleCalendar"
-                :href="mySchedule.link"
-                target="_blank"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
-              >
-                View on Google Calendar
-              </a>
-            </div>
-          </div>
-          <!-- Edit Schedule Container -->
-          <div
-            class="w-full origin-top ease-in-out forwards duration-[600ms]"
-            :class="[
-              showEditSchedule[index]
-                ? 'h-[28rem] scale-y-100'
-                : 'h-0 scale-y-0',
-            ]"
-          >
-            <form @submit.prevent="editThisSchedule(mySchedule.id)">
-              <h2 class="text-lg font-semibold my-2">Edit this schedule</h2>
-              <p class="mb-2">Have a change in plans?</p>
-              <textarea
-                v-model="plan"
-                class="px-2 py-1 border-2 border-solid border-black w-2/3 h-24"
-                id=""
-              ></textarea>
-              <p class="mb-2">Date :</p>
-              <input
-                v-model="scheduleDate"
-                class="mb-2 px-2 border-2 border-solid border-black"
-                type="date"
-                :min="maxVisitDate"
-              />
-              <p class="mb-2">Start Time :</p>
-              <input
-                v-model="scheduleTime"
-                class="mb-2 px-2 border-2 border-solid border-black"
-                type="time"
-              />
-              <p class="mb-2">End Time :</p>
-              <input
-                v-model="scheduleEnd"
-                class="mb-2 px-2 border-2 border-solid border-black"
-                type="time"
-              />
-              <p class="mt-2"></p>
-              <button
-                type="submit"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
-              >
-                Submit
-              </button>
-            </form>
-          </div>
-        </li>
+        <span
+          class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+          >Loading...</span
+        >
       </div>
-    </ol>
+    </div>
+    <div v-else-if="!loading">
+      <div v-if="mySchedules.length === 0">
+        <p class="text-center text-2xl">
+          You don't have any schedules yet! Let's create a plan by going to
+          <router-link to="/destinations" class="underline"
+            >destinations</router-link
+          >
+          first!
+        </p>
+      </div>
+      <ol class="relative">
+        <div
+          v-for="(mySchedule, index) in mySchedules"
+          class="border-green-600 pl-6 pb-4 border-dashed"
+          :class="[index !== mySchedules.length - 1 && 'border-l-[3px]']"
+        >
+          <li class="ml-6">
+            <!-- Schedule Container -->
+            <div>
+              <span
+                class="absolute flex items-center justify-center w-6 h-6 bg-green-500 rounded-full -left-3 ring-8 ring-green-500"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="w-3 h-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </span>
+              <h3
+                class="flex items-center mb-1 text-lg font-semibold text-gray-900"
+              >
+                A Trip to {{ mySchedule.Destination.name }}
+              </h3>
+              <time
+                class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
+              >
+                {{ longDateFormatter(mySchedule.scheduleDate) }} ( from
+                {{ timeSlicer(mySchedule.scheduleTime) }} to
+                {{ timeSlicer(mySchedule.scheduleEnd) }} )
+              </time>
+              <p class="mb-4 text-base font-normal text-gray-600 text-justify">
+                {{ mySchedule.plan }}
+              </p>
+              <div class="mb-4">
+                <button
+                  @click="showEditForm(index, mySchedule.id)"
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
+                >
+                  Edit this plan
+                </button>
+                <button
+                  @click="deleteSchedule(mySchedule.id, mySchedule.eventId)"
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
+                >
+                  Delete this plan
+                </button>
+                <a
+                  v-if="mySchedule.isSyncWithGoogleCalendar"
+                  :href="mySchedule.link"
+                  target="_blank"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
+                >
+                  View on Google Calendar
+                </a>
+              </div>
+            </div>
+            <!-- Edit Schedule Container -->
+            <div
+              class="w-full origin-top ease-in-out forwards duration-[600ms]"
+              :class="[
+                showEditSchedule[index]
+                  ? 'h-[28rem] scale-y-100'
+                  : 'h-0 scale-y-0',
+              ]"
+            >
+              <form @submit.prevent="editThisSchedule(mySchedule.id)">
+                <h2 class="text-lg font-semibold my-2">Edit this schedule</h2>
+                <p class="mb-2">Have a change in plans?</p>
+                <textarea
+                  v-model="plan"
+                  class="px-2 py-1 border-2 border-solid border-black w-2/3 h-24"
+                  id=""
+                ></textarea>
+                <p class="mb-2">Date :</p>
+                <input
+                  v-model="scheduleDate"
+                  class="mb-2 px-2 border-2 border-solid border-black"
+                  type="date"
+                  :min="maxVisitDate"
+                />
+                <p class="mb-2">Start Time :</p>
+                <input
+                  v-model="scheduleTime"
+                  class="mb-2 px-2 border-2 border-solid border-black"
+                  type="time"
+                />
+                <p class="mb-2">End Time :</p>
+                <input
+                  v-model="scheduleEnd"
+                  class="mb-2 px-2 border-2 border-solid border-black"
+                  type="time"
+                />
+                <p class="mt-2"></p>
+                <button
+                  type="submit"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium border text-white border-gray-200 rounded-lg hover:bg-green-600 focus:z-10 bg-green-500 mr-4"
+                >
+                  Submit
+                </button>
+              </form>
+            </div>
+          </li>
+        </div>
+      </ol>
+    </div>
   </main>
 </template>

@@ -66,7 +66,7 @@ export default {
   <main class="min-h-screen">
     <!-- background image container -->
     <div
-      class="h-[32rem] w-full relative before:absolute before:top-0 before:left-0 before:right-0 before:bottom-0 before:bg-[url('./assets/bg-home.jpg')] before:bg-cover before:bg-center before:brightness-50 flex items-center justify-center text-white"
+      class="h-[calc(100vh-3rem)] w-full relative before:absolute before:top-0 before:left-0 before:right-0 before:bottom-0 before:bg-[url('./assets/bg-home.jpg')] before:bg-cover before:bg-center before:brightness-50 flex items-center justify-center text-white"
     >
       <div class="w-1/2 mx-auto text-center">
         <h1

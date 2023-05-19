@@ -5,7 +5,7 @@ import { useMainStore } from '../stores/mainStore';
 export default {
 
   computed: {
-    ...mapState(useMainStore, ['loginStatus', "tokenClient", ""])
+    ...mapState(useMainStore, ['loginStatus', "tokenClient"])
   },
 
   methods: {

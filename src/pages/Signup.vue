@@ -1,87 +1,132 @@
 <script>
-import { mapActions, mapState } from 'pinia';
-import { useMainStore } from '../stores/mainStore';
+import { mapActions, mapState } from "pinia";
+import { useMainStore } from "../stores/mainStore";
 
 export default {
   data() {
     return {
-      username: '',
-      email: '',
-      password: ''
-    }
+      username: "",
+      email: "",
+      password: "",
+    };
   },
 
-  computed : {
-    ...mapState(useMainStore, ['signUpErrMessage'])
+  computed: {
+    ...mapState(useMainStore, ["signUpErrMessage", "loading"]),
   },
 
   methods: {
-    ...mapActions(useMainStore, ['handleSignUp']),
+    ...mapActions(useMainStore, ["handleSignUp"]),
 
     toastFirer(icon, title) {
       const toast = this.$swal.mixin({
         toast: true,
-        position: 'top-end',
+        position: "top-end",
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
         didOpen: (toast) => {
-          toast.addEventListener('mouseenter', this.$swal.stopTimer)
-          toast.addEventListener('mouseleave', this.$swal.resumeTimer)
-        }
-      })
+          toast.addEventListener("mouseenter", this.$swal.stopTimer);
+          toast.addEventListener("mouseleave", this.$swal.resumeTimer);
+        },
+      });
       toast.fire({
         icon: icon,
-        title: title
-      })
+        title: title,
+      });
     },
 
     async signup() {
       const result = await this.handleSignUp({
         username: this.username,
         email: this.email,
-        password: this.password
+        password: this.password,
       });
       if (result) {
-        this.toastFirer('success', 'Signed Up Successfully!');
+        this.toastFirer("success", "Signed Up Successfully!");
       } else {
-        this.toastFirer('error', this.signUpErrMessage);
+        this.toastFirer("error", this.signUpErrMessage);
       }
-    }
-  }
-}
-
+    },
+  },
+};
 </script>
 
-
 <template>
-  <div class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-signup.jpg')] bg-cover shadow-2xl relative">
+  <div
+    class="text-white w-screen h-screen flex justify-center items-center bg-[url('./assets/bg-signup.jpg')] bg-cover shadow-2xl relative"
+  >
     <router-link to="/" class="absolute w-10 aspect-square top-5 left-5">
-      <font-awesome-icon class="absolute-middle" icon="fa-solid fa-arrow-left" size="xl" />
+      <font-awesome-icon
+        class="absolute-middle"
+        icon="fa-solid fa-arrow-left"
+        size="xl"
+      />
     </router-link>
-    <div class="w-1/3 h-2/3  rounded-2xl backdrop-blur-[2px] border-white border-4 py-6 px-8">
-      <div class="text-center text-2xl font-bold mb-6 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+    <div
+      class="w-1/3 h-2/3 rounded-2xl backdrop-blur-[2px] border-white border-4 py-6 px-8"
+    >
+      <div
+        class="text-center text-2xl font-bold mb-6 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"
+      >
         Sign Up
       </div>
       <form @submit.prevent="signup">
         <div class="my-3.5">
-          <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Email Address :</p>
-          <input v-model="email" class="my-2.5 px-4 py-2 rounded-full w-full text-black" type="email">
+          <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+            Email Address :
+          </p>
+          <input
+            v-model="email"
+            class="my-2.5 px-4 py-2 rounded-full w-full text-black"
+            type="email"
+          />
         </div>
         <div class="my-3.5">
           <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Username :</p>
-          <input v-model="username" class="my-2.5 px-4 py-2 rounded-full w-full text-black" type="text">
+          <input
+            v-model="username"
+            class="my-2.5 px-4 py-2 rounded-full w-full text-black"
+            type="text"
+          />
         </div>
         <div class="my-3.5">
           <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Password :</p>
-          <input v-model="password" class="my-2.5 px-4 py-2 rounded-full w-full text-black" type="password">
+          <input
+            v-model="password"
+            class="my-2.5 px-4 py-2 rounded-full w-full text-black"
+            type="password"
+          />
         </div>
-        <div class="my-3.5 text-sm text-center">
-          <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Already have account? Log in
-            <router-link to="/login" class="hover:underline text-sky-200 hover:text-sky-300 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" href="#">here</router-link>
-          </p>
+        <div class="flex justify-center items-center my-3.5">
+          <div
+            v-if="loading"
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-slate-100 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span
+              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+              >Loading...</span
+            >
+          </div>
+          <div v-else-if="!loading" class="text-sm text-center">
+            <p class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+              Already have account? Log in
+              <router-link
+                to="/login"
+                class="hover:underline text-sky-200 hover:text-sky-300 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]"
+                href="#"
+                >here</router-link
+              >
+            </p>
+          </div>
         </div>
-        <button class=" my-2.5 w-full bg-green-500 hover:bg-green-600 py-2 rounded-full" type="submit">Sign Up</button>
+        <button
+          class="my-2.5 w-full bg-green-500 hover:bg-green-600 py-2 rounded-full"
+          type="submit"
+        >
+          Sign Up
+        </button>
       </form>
     </div>
   </div>
