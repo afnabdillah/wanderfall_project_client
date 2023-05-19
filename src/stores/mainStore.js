@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const base_url = "http://localhost:8080";
-// const base_url = "https://wanderfall.fly.dev";
+// const base_url = "http://localhost:8080";
+const base_url = "https://wanderfall.fly.dev";
 
 export const useMainStore = defineStore("mainStore", {
   state: () => ({
